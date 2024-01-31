@@ -227,3 +227,215 @@ function checkFileExtension(filePath, expectedExtension) {
 // Example usage
 checkFileExtension('test-files/file1.txt', '.txt');
 ```
+
+
+**1. Problem: Express Route Handling**
+
+**Problem Statement:**
+You are building a web application using Express in Node.js. Create an Express route to handle GET requests to the endpoint "/greet" that takes a query parameter "name" and returns a personalized greeting. If the name parameter is not provided, the default greeting should be "Hello, Guest!".
+
+**Function Signature:**
+```javascript
+/**
+ * Handles GET requests to "/greet" endpoint
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+function greetHandler(req, res) {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+- If the "name" parameter is provided: "Hello, {name}!"
+- If the "name" parameter is not provided: "Hello, Guest!"
+
+**Test Cases:**
+1. Request to `/greet?name=John` should return "Hello, John!"
+2. Request to `/greet` should return "Hello, Guest!"
+
+**Solution:**
+```javascript
+function greetHandler(req, res) {
+  const name = req.query.name || 'Guest';
+  res.send(`Hello, ${name}!`);
+}
+```
+
+---
+
+**2. Problem: Express Middleware**
+
+**Problem Statement:**
+Implement an Express middleware function that logs the timestamp and the HTTP method of every incoming request to the server.
+
+**Function Signature:**
+```javascript
+/**
+ * Express middleware to log incoming requests
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next function
+ */
+function requestLoggerMiddleware(req, res, next) {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+Log entries in the server console should be in the format: `{timestamp} - {HTTP method} request received`.
+
+**Test Cases:**
+1. Any incoming request should trigger the middleware and log the appropriate message.
+
+**Solution:**
+```javascript
+function requestLoggerMiddleware(req, res, next) {
+  console.log(`${new Date().toISOString()} - ${req.method} request received`);
+  next();
+}
+```
+
+---
+
+**3. Problem: Express Error Handling**
+
+**Problem Statement:**
+Create an Express route that throws an error if the request parameter "number" is not a positive integer. Implement an error handling middleware to catch and handle this specific error, returning a custom error message and a 400 Bad Request status.
+
+**Function Signature:**
+```javascript
+/**
+ * Express route to handle requests with a positive integer parameter
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+function positiveIntegerHandler(req, res) {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+- If "number" is a positive integer: Return a success message.
+- If "number" is not a positive integer: Trigger an error handled by the error handling middleware.
+
+**Test Cases:**
+1. Request to `/positive?number=5` should return a success message.
+2. Request to `/positive?number=-2` should trigger the error handling middleware.
+
+**Solution:**
+```javascript
+function positiveIntegerHandler(req, res) {
+  const number = parseInt(req.query.number);
+
+  if (Number.isInteger(number) && number > 0) {
+    res.send('Success!');
+  } else {
+    throw new Error('Invalid positive integer');
+  }
+}
+
+function errorHandler(err, req, res, next) {
+  res.status(400).send(`Error: ${err.message}`);
+}
+```
+
+---
+
+**4. Problem: Express Static Files**
+
+**Problem Statement:**
+Create an Express application that serves static files (e.g., HTML, CSS, images) from a "public" directory. Ensure that accessing the root ("/") returns the "index.html" file from the "public" directory.
+
+**Function Signature:**
+```javascript
+/**
+ * Express application serving static files from the "public" directory
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+function staticFileServer(req, res) {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+Accessing the root ("/") should return the content of "public/index.html".
+
+**Test Cases:**
+1. Request to `/` should return the content of "public/index.html".
+2. Request to `/styles/style.css` should return the content of "public/styles/style.css".
+
+**Solution:**
+```javascript
+const express = require('express');
+const path = require('path');
+
+const app = express();
+
+// Serve static files from the "public" directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Define a route for the root ("/") to serve "public/index.html"
+app.get('/', staticFileServer);
+
+// Start the Express server
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
+```
+
+---
+
+**5. Problem: Express Body Parsing**
+
+**Problem Statement:**
+Implement an Express route that handles POST requests to the "/add" endpoint. The route should expect a JSON object with two properties: "num1" and "num2". Return the sum of these two numbers.
+
+**Function Signature:**
+```javascript
+/**
+ * Handles POST requests to "/add" endpoint
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+function addNumbersHandler(req, res) {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+The response should be a JSON object with the sum of "num1" and "num2".
+
+**Test Cases:**
+1. POST request to `/add` with JSON body `{"num1": 3, "num2": 7}` should return `{"result": 10}`.
+2. POST request to `/add` with invalid JSON body should return an error.
+
+**Solution:**
+```javascript
+const express = require('express');
+
+const app = express();
+
+// Middleware to parse JSON in the request body
+app.use(express.json());
+
+// Route to handle POST requests to "/add"
+app.post('/add', addNumbersHandler);
+
+function addNumbersHandler(req, res) {
+  const { num1, num2 } = req.body;
+
+  if (typeof num1 === 'number' && typeof num2 === 'number') {
+    const result = num1 + num2;
+    res.json({ result });
+  } else {
+    res.status(400).json({ error: 'Invalid input' });
+  }
+}
+
+// Start the Express server
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
+```
