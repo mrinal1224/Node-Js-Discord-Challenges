@@ -438,4 +438,250 @@ function addNumbersHandler(req, res) {
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
 });
+
+**11. Problem: Express Authentication Middleware**
+
+**Problem Statement:**
+Implement an authentication middleware for an Express application. The middleware should check for the presence of a valid JWT (JSON Web Token) in the request headers. If a valid token is present, allow the request to proceed; otherwise, return a 401 Unauthorized status.
+
+**Function Signature:**
+```javascript
+/**
+ * Authentication middleware for Express
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next function
+ */
+function authenticationMiddleware(req, res, next) {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+- If a valid JWT is present, allow the request to proceed.
+- If no JWT is present or it's invalid, return a 401 Unauthorized status.
+
+**Test Cases:**
+1. Request with a valid JWT should proceed.
+2. Request without a JWT or with an invalid JWT should return a 401 Unauthorized status.
+
+**Solution:**
+```javascript
+const jwt = require('jsonwebtoken');
+
+function authenticationMiddleware(req, res, next) {
+  const token = req.headers.authorization;
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, 'secretKey');
+      req.user = decoded;
+      next();
+    } catch (error) {
+      res.status(401).json({ error: 'Invalid token' });
+    }
+  } else {
+    res.status(401).json({ error: 'Token not provided' });
+  }
+}
+```
+
+---
+
+**12. Problem: Express Rate Limiting**
+
+**Problem Statement:**
+Implement a rate-limiting middleware for an Express application. The middleware should limit the number of requests from a single IP address to a specified rate, and return a 429 Too Many Requests status if the limit is exceeded.
+
+**Function Signature:**
+```javascript
+/**
+ * Rate-limiting middleware for Express
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next function
+ */
+function rateLimitMiddleware(req, res, next) {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+- If the number of requests from a single IP is below the limit, allow the request to proceed.
+- If the limit is exceeded, return a 429 Too Many Requests status.
+
+**Test Cases:**
+1. Send requests within the limit; all should proceed.
+2. Send requests exceeding the limit; some should return a 429 status.
+
+**Solution:**
+```javascript
+const rateLimit = require('express-rate-limit');
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per window
+});
+
+app.use(limiter);
+```
+
+---
+
+**13. Problem: Express WebSocket Integration**
+
+**Problem Statement:**
+Extend an existing Express application to include WebSocket support. Create a WebSocket server that echoes back any message it receives from a client. Implement an endpoint "/websocket" that serves an HTML page with JavaScript to establish a WebSocket connection.
+
+**Function Signature:**
+```javascript
+/**
+ * WebSocket server for Express
+ * @param {Object} server - HTTP server instance
+ */
+function setupWebSocket(server) {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+- Clients should be able to establish a WebSocket connection to "/websocket".
+- Messages sent by clients should be echoed back by the server.
+
+**Test Cases:**
+1. Establish a WebSocket connection and send a message; it should be echoed back.
+
+**Solution:**
+```javascript
+const http = require('http');
+const express = require('express');
+const WebSocket = require('ws');
+
+const app = express();
+const server = http.createServer(app);
+
+setupWebSocket(server);
+
+app.get('/websocket', (req, res) => {
+  // Serve HTML with JavaScript for WebSocket connection
+  res.sendFile(__dirname + '/websocket.html');
+});
+
+server.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
+
+function setupWebSocket(server) {
+  const wss = new WebSocket.Server({ server });
+
+  wss.on('connection', (ws) => {
+    ws.on('message', (message) => {
+      // Echo back the received message
+      ws.send(message);
+    });
+  });
+}
+```
+
+---
+
+**14. Problem: Express Caching Middleware**
+
+**Problem Statement:**
+Implement a caching middleware for an Express application. The middleware should cache responses based on the request URL and return cached responses for subsequent identical requests. Allow cache expiration after a specified time.
+
+**Function Signature:**
+```javascript
+/**
+ * Caching middleware for Express
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next function
+ */
+function cachingMiddleware(req, res, next) {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+- Cached responses should be returned for identical requests within the cache expiration time.
+- Subsequent requests after cache expiration should trigger a new response.
+
+**Test Cases:**
+1. Make a request, cache the response, and make the same request again within the cache expiration time.
+2. Make a request, cache the response, wait for cache expiration, and make the same request again.
+
+**Solution:**
+```javascript
+const NodeCache = require('node-cache');
+const cache = new NodeCache({ stdTTL: 60 }); // Cache with a 60-second expiration
+
+function cachingMiddleware(req, res, next) {
+  const key = req.url;
+
+  // Check if response is cached
+  const cachedResponse = cache.get(key);
+
+  if (cachedResponse) {
+    res.send(cachedResponse);
+  } else {
+    // If not cached, proceed with the request
+    res.sendResponse = res.send;
+    res.send = (body) => {
+      // Cache the response
+      cache.set(key, body);
+      res.sendResponse(body);
+    };
+
+    next();
+  }
+}
+```
+
+---
+
+**15. Problem: Express Logging Middleware**
+
+**Problem Statement:**
+Create a logging middleware for an Express application. The middleware should log detailed information about each incoming request, including the timestamp, HTTP method, URL, request headers, and request body.
+
+**Function Signature:**
+```javascript
+/**
+ * Logging middleware for Express
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next function
+ */
+function loggingMiddleware(req, res, next) {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+- Each incoming request should be logged with detailed information.
+
+**Test Cases:**
+1. Make multiple requests and check the server logs for detailed information.
+
+**Solution:**
+```javascript
+function loggingMiddleware(req, res, next) {
+  const timestamp = new Date().toISOString();
+  const method = req.method;
+  const url = req.url;
+  const headers = req.headers;
+  const body = req.body;
+
+  console.log(`
+    Timestamp: ${timestamp}
+    Method: ${method}
+    URL: ${url}
+    Headers: ${JSON.stringify(headers)}
+    Body: ${JSON.stringify(body)}
+  `);
+
+  next();
+}
+```
 ```
