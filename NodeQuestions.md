@@ -897,7 +897,7 @@ addUserWithValidation({ username: 'john_doe', email: 'invalid-email' });
 
 ---
 
-**.20 Problem: Express Route with MongoDB Aggregation**
+**20. Problem: Express Route with MongoDB Aggregation**
 
 **Problem Statement:**
 Create an Express route that uses MongoDB aggregation to calculate and return the average age of all users in the database.
