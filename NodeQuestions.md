@@ -684,4 +684,259 @@ function loggingMiddleware(req, res, next) {
   next();
 }
 ```
+
+
+**16. Problem: MongoDB Connection Setup**
+
+**Problem Statement:**
+Create an Express application with MongoDB integration using Mongoose. Implement a function to establish a connection to a MongoDB database. Ensure that the connection is successful and log a success message.
+
+**Function Signature:**
+```javascript
+/**
+ * Establishes a connection to MongoDB using Mongoose
+ */
+function connectToMongoDB() {
+  // Your implementation here
+}
 ```
+
+**Expected Output:**
+- If the connection is successful, log a success message.
+
+**Test Cases:**
+1. Call `connectToMongoDB()` and check the server logs for a successful connection message.
+
+**Solution:**
+```javascript
+const mongoose = require('mongoose');
+
+function connectToMongoDB() {
+  mongoose.connect('mongodb://localhost/mydatabase', { useNewUrlParser: true, useUnifiedTopology: true });
+
+  const db = mongoose.connection;
+
+  db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+  db.once('open', () => {
+    console.log('Connected to MongoDB successfully!');
+  });
+}
+
+// Call the function to establish the connection
+connectToMongoDB();
+```
+
+---
+
+**17. Problem: Mongoose Schema and Model**
+
+**Problem Statement:**
+Define a Mongoose schema for a "User" with properties: "username" (string) and "email" (string). Create a Mongoose model for the User schema. Implement a function to add a new user to the MongoDB database.
+
+**Function Signature:**
+```javascript
+/**
+ * Adds a new user to the MongoDB database
+ * @param {Object} user - User object with properties username and email
+ */
+function addUserToDatabase(user) {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+- If the user is successfully added, log a success message.
+
+**Test Cases:**
+1. Call `addUserToDatabase({ username: 'john_doe', email: 'john@example.com' })` and check the server logs for a success message.
+
+**Solution:**
+```javascript
+const mongoose = require('mongoose');
+
+// Define User schema
+const userSchema = new mongoose.Schema({
+  username: String,
+  email: String,
+});
+
+// Create User model
+const User = mongoose.model('User', userSchema);
+
+function addUserToDatabase(user) {
+  const newUser = new User(user);
+
+  newUser.save((err, savedUser) => {
+    if (err) {
+      console.error('Error adding user:', err);
+    } else {
+      console.log('User added successfully:', savedUser);
+    }
+  });
+}
+
+// Call the function to add a user
+addUserToDatabase({ username: 'john_doe', email: 'john@example.com' });
+```
+
+---
+
+**18. Problem: Express Route with MongoDB Query**
+
+**Problem Statement:**
+Create an Express route that retrieves all users from the MongoDB database and returns them as a JSON response.
+
+**Function Signature:**
+```javascript
+/**
+ * Express route to get all users from MongoDB
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+function getAllUsers(req, res) {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+- Return a JSON response with an array of user objects.
+
+**Test Cases:**
+1. Access the route `/users` and check if the response contains the expected user data.
+
+**Solution:**
+```javascript
+const express = require('express');
+const app = express();
+const mongoose = require('mongoose');
+
+// Define User schema and create User model (as shown in the previous solution)
+
+// Express route to get all users
+app.get('/users', getAllUsers);
+
+function getAllUsers(req, res) {
+  User.find({}, (err, users) => {
+    if (err) {
+      console.error('Error fetching users:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(users);
+    }
+  });
+}
+
+// Connect to MongoDB (as shown in the first solution)
+
+// Start the Express server
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
+```
+
+---
+
+**19. Problem: Mongoose Validation**
+
+**Problem Statement:**
+Enhance the user schema from the previous question to include validation for the "email" property (must be a valid email address). Implement a function to add a new user to the MongoDB database with validation.
+
+**Function Signature:**
+```javascript
+/**
+ * Adds a new user to the MongoDB database with validation
+ * @param {Object} user - User object with properties username and email
+ */
+function addUserWithValidation(user) {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+- If the user is successfully added, log a success message. If validation fails, log an error message.
+
+**Test Cases:**
+1. Call `addUserWithValidation({ username: 'john_doe', email: 'invalid-email' })` and check the server logs for a validation error message.
+
+**Solution:**
+```javascript
+const userSchemaWithValidation = new mongoose.Schema({
+  username: String,
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    validate: {
+      validator: function (value) {
+        // Simple email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(value);
+      },
+      message: 'Invalid email format',
+    },
+  },
+});
+
+const UserWithValidation = mongoose.model('UserWithValidation', userSchemaWithValidation);
+
+function addUserWithValidation(user) {
+  const newUser = new UserWithValidation(user);
+
+  newUser.save((err, savedUser) => {
+    if (err) {
+      console.error('Error adding user with validation:', err.message);
+    } else {
+      console.log('User added successfully with validation:', savedUser);
+    }
+  });
+}
+
+// Call the function to add a user with validation
+addUserWithValidation({ username: 'john_doe', email: 'invalid-email' });
+```
+
+---
+
+**20. Problem: Express Route with MongoDB Aggregation**
+
+**Problem Statement:**
+Create an Express route that uses MongoDB aggregation to calculate and return the average age of all users in the database.
+
+**Function Signature:**
+```javascript
+/**
+ * Express route to calculate the average age of all users in MongoDB
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+function averageAgeOfUsers(req, res) {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+- Return a JSON response with the calculated average age.
+
+**Test Cases:**
+1. Access the route `/average-age` and check if the response contains the expected average age.
+
+**Solution:**
+```javascript
+// Assuming the userSchema includes an "age" property
+
+function averageAgeOfUsers(req, res) {
+  User.aggregate([
+    {
+      $group: {
+        _id: null,
+        averageAge: { $avg: '$age' },
+      },
+    },
+  ], (err, result) => {
+    if (err) {
+      console.error('Error calculating average age:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      const averageAge = result[0] ? result[0].averageAge : 0;
+      res.json({ averageAge });
+    }
