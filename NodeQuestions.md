@@ -941,3 +941,356 @@ function averageAgeOfUsers(req, res) {
       res.json({ averageAge });
     }
 ```
+
+
+
+# Dependent Questions
+
+**These Questions build upon each other , that means if you are able to solve the first problem then only you will be able to move to the next problem , In the End of these 5 questions you will have a complete product route Ready!**
+
+**21. Problem: MongoDB CRUD Operations**
+
+**Problem Statement:**
+Implement a set of CRUD (Create, Read, Update, Delete) operations for a "Product" entity using MongoDB and Mongoose. Define a Mongoose schema for the product with properties like "name," "price," and "quantity." Implement functions to create, read, update, and delete products.
+
+**Function Signature:**
+```javascript
+/**
+ * Creates a new product in MongoDB
+ * @param {Object} product - Product object with properties name, price, and quantity
+ */
+function createProduct(product) {
+  // Your implementation here
+}
+
+/**
+ * Retrieves all products from MongoDB
+ * @returns {Array} - Array of product objects
+ */
+function getAllProducts() {
+  // Your implementation here
+}
+
+/**
+ * Updates a product in MongoDB
+ * @param {string} productId - ID of the product to update
+ * @param {Object} updatedProduct - Updated product object
+ */
+function updateProduct(productId, updatedProduct) {
+  // Your implementation here
+}
+
+/**
+ * Deletes a product from MongoDB
+ * @param {string} productId - ID of the product to delete
+ */
+function deleteProduct(productId) {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+- The functions should perform the respective CRUD operations on the "Product" collection in MongoDB.
+
+**Test Cases:**
+1. Create a product, retrieve all products, update a product, and then delete the product.
+
+**Solution:**
+```javascript
+const mongoose = require('mongoose');
+
+// Define Product schema
+const productSchema = new mongoose.Schema({
+  name: String,
+  price: Number,
+  quantity: Number,
+});
+
+// Create Product model
+const Product = mongoose.model('Product', productSchema);
+
+function createProduct(product) {
+  const newProduct = new Product(product);
+
+  newProduct.save((err, savedProduct) => {
+    if (err) {
+      console.error('Error creating product:', err);
+    } else {
+      console.log('Product created successfully:', savedProduct);
+    }
+  });
+}
+
+function getAllProducts() {
+  return Product.find({});
+}
+
+function updateProduct(productId, updatedProduct) {
+  Product.findByIdAndUpdate(productId, updatedProduct, { new: true }, (err, updated) => {
+    if (err) {
+      console.error('Error updating product:', err);
+    } else {
+      console.log('Product updated successfully:', updated);
+    }
+  });
+}
+
+function deleteProduct(productId) {
+  Product.findByIdAndDelete(productId, (err, deleted) => {
+    if (err) {
+      console.error('Error deleting product:', err);
+    } else {
+      console.log('Product deleted successfully:', deleted);
+    }
+  });
+}
+```
+
+---
+
+**22. Problem: Mongoose Population**
+
+**Problem Statement:**
+Extend the previous "Product" schema to include a reference to a "Category" entity. Implement a Mongoose population query to retrieve all products with their corresponding category details.
+
+**Function Signature:**
+```javascript
+/**
+ * Retrieves all products with populated category details from MongoDB
+ * @returns {Array} - Array of product objects with populated category details
+ */
+function getProductsPopulatedWithCategory() {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+- The function should return an array of product objects with populated category details.
+
+**Test Cases:**
+1. Create products with associated categories, then call the function to retrieve products with populated category details.
+
+**Solution:**
+```javascript
+// Define Category schema
+const categorySchema = new mongoose.Schema({
+  name: String,
+});
+
+// Create Category model
+const Category = mongoose.model('Category', categorySchema);
+
+// Update Product schema to include a reference to Category
+const productSchemaWithCategory = new mongoose.Schema({
+  name: String,
+  price: Number,
+  quantity: Number,
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+  },
+});
+
+// Create Product model with updated schema
+const ProductWithCategory = mongoose.model('ProductWithCategory', productSchemaWithCategory);
+
+function getProductsPopulatedWithCategory() {
+  return ProductWithCategory.find({}).populate('category');
+}
+```
+
+---
+
+**23. Problem: Express Route for Product CRUD Operations**
+
+**Problem Statement:**
+Create Express routes for handling CRUD operations on products using MongoDB and Mongoose. Implement routes for creating, reading, updating, and deleting products.
+
+**Function Signature:**
+```javascript
+/**
+ * Express route to create a new product
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+function createProductRoute(req, res) {
+  // Your implementation here
+}
+
+/**
+ * Express route to retrieve all products
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+function getAllProductsRoute(req, res) {
+  // Your implementation here
+}
+
+/**
+ * Express route to update a product
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+function updateProductRoute(req, res) {
+  // Your implementation here
+}
+
+/**
+ * Express route to delete a product
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+function deleteProductRoute(req, res) {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+- The routes should perform the respective CRUD operations on the "Product" collection in MongoDB.
+
+**Test Cases:**
+1. Use tools like Postman to send HTTP requests to each route and check the MongoDB database for the expected changes.
+
+**Solution:**
+```javascript
+const express = require('express');
+const app = express();
+
+// Connect to MongoDB (as shown in the first solution)
+
+// Define Product schema (as shown in the first solution)
+
+// Create Product model (as shown in the first solution)
+
+// Express routes for CRUD operations
+app.post('/products', createProductRoute);
+app.get('/products', getAllProductsRoute);
+app.put('/products/:productId', updateProductRoute);
+app.delete('/products/:productId', deleteProductRoute);
+
+function createProductRoute(req, res) {
+  const newProduct = new Product(req.body);
+
+  newProduct.save((err, savedProduct) => {
+    if (err) {
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(savedProduct);
+    }
+  });
+}
+
+function getAllProductsRoute(req, res) {
+  Product.find({}, (err, products) => {
+    if (err) {
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(products);
+    }
+  });
+}
+
+function updateProductRoute(req, res) {
+  const productId = req.params.productId;
+  Product.findByIdAndUpdate(productId, req.body, { new: true }, (err, updatedProduct) => {
+    if (err) {
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(updatedProduct);
+    }
+  });
+}
+
+function deleteProductRoute(req, res) {
+  const productId = req.params.productId;
+  Product.findByIdAndDelete(productId, (err, deletedProduct) => {
+    if (err) {
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(deletedProduct);
+    }
+  });
+}
+
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+
+
+});
+```
+
+---
+
+**24. Problem: Mongoose Indexing**
+
+**Problem Statement:**
+Implement indexing on the "name" field of the "Product" collection to optimize query performance. Write a function to create the index.
+
+**Function Signature:**
+```javascript
+/**
+ * Creates an index on the "name" field of the "Product" collection in MongoDB
+ */
+function createProductNameIndex() {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+- The function should create an index on the "name" field of the "Product" collection.
+
+**Test Cases:**
+1. Call the function and check the MongoDB database for the created index.
+
+**Solution:**
+```javascript
+function createProductNameIndex() {
+  Product.createIndex({ name: 1 }, (err, result) => {
+    if (err) {
+      console.error('Error creating index:', err);
+    } else {
+      console.log('Index created successfully:', result);
+    }
+  });
+}
+```
+
+---
+
+**25. Problem: Aggregation Pipeline for Product Stats**
+
+**Problem Statement:**
+Create an aggregation pipeline to calculate statistics for products in MongoDB. Implement a function to execute the pipeline and return aggregated results like the total number of products, the average price, and the highest quantity.
+
+**Function Signature:**
+```javascript
+/**
+ * Executes an aggregation pipeline to calculate product statistics
+ * @returns {Object} - Aggregated product statistics
+ */
+function getProductStatistics() {
+  // Your implementation here
+}
+```
+
+**Expected Output:**
+- The function should return an object with aggregated product statistics.
+
+**Test Cases:**
+1. Call the function and check the results for the expected product statistics.
+
+**Solution:**
+```javascript
+function getProductStatistics() {
+  return Product.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalProducts: { $sum: 1 },
+        averagePrice: { $avg: '$price' },
+        highestQuantity: { $max: '$quantity' },
+      },
+    },
+  ]);
+}
+```
