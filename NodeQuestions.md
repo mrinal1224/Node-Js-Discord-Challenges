@@ -229,7 +229,7 @@ checkFileExtension('test-files/file1.txt', '.txt');
 ```
 
 
-**1. Problem: Express Route Handling**
+**6. Problem: Express Route Handling**
 
 **Problem Statement:**
 You are building a web application using Express in Node.js. Create an Express route to handle GET requests to the endpoint "/greet" that takes a query parameter "name" and returns a personalized greeting. If the name parameter is not provided, the default greeting should be "Hello, Guest!".
@@ -264,7 +264,7 @@ function greetHandler(req, res) {
 
 ---
 
-**2. Problem: Express Middleware**
+**7. Problem: Express Middleware**
 
 **Problem Statement:**
 Implement an Express middleware function that logs the timestamp and the HTTP method of every incoming request to the server.
@@ -298,7 +298,7 @@ function requestLoggerMiddleware(req, res, next) {
 
 ---
 
-**3. Problem: Express Error Handling**
+**8. Problem: Express Error Handling**
 
 **Problem Statement:**
 Create an Express route that throws an error if the request parameter "number" is not a positive integer. Implement an error handling middleware to catch and handle this specific error, returning a custom error message and a 400 Bad Request status.
@@ -342,7 +342,7 @@ function errorHandler(err, req, res, next) {
 
 ---
 
-**4. Problem: Express Static Files**
+**9. Problem: Express Static Files**
 
 **Problem Statement:**
 Create an Express application that serves static files (e.g., HTML, CSS, images) from a "public" directory. Ensure that accessing the root ("/") returns the "index.html" file from the "public" directory.
@@ -387,7 +387,7 @@ app.listen(3000, () => {
 
 ---
 
-**5. Problem: Express Body Parsing**
+**10. Problem: Express Body Parsing**
 
 **Problem Statement:**
 Implement an Express route that handles POST requests to the "/add" endpoint. The route should expect a JSON object with two properties: "num1" and "num2". Return the sum of these two numbers.
