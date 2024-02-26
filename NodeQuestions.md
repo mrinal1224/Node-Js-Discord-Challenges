@@ -1294,3 +1294,153 @@ function getProductStatistics() {
   ]);
 }
 ```
+
+Sure, here are three advanced problems related to Node.js with Express:
+
+**Problem 26: Concurrent Request Handling**
+
+**Problem Statement:**
+You are building a real-time messaging application using Node.js and Express. However, you notice that when multiple users simultaneously send messages, the server slows down and sometimes crashes due to high load. Design a solution to efficiently handle concurrent requests and ensure the stability and performance of the server.
+
+**Function Signature:**
+```javascript
+function handleConcurrentRequests(app, maxConcurrency) {
+    // Your implementation here
+}
+```
+
+**Solution:**
+```javascript
+const express = require('express');
+const app = express();
+const { Worker } = require('worker_threads');
+
+function handleConcurrentRequests(app, maxConcurrency) {
+    const workerPool = [];
+    for (let i = 0; i < maxConcurrency; i++) {
+        const worker = new Worker('./worker.js');
+        workerPool.push(worker);
+    }
+
+    app.use((req, res, next) => {
+        const availableWorker = workerPool.find(worker => worker.isAvailable);
+        if (availableWorker) {
+            availableWorker.isAvailable = false;
+            availableWorker.postMessage(req);
+            availableWorker.on('message', (result) => {
+                res.send(result);
+                availableWorker.isAvailable = true;
+            });
+        } else {
+            res.status(503).send('Service Unavailable');
+        }
+    });
+}
+
+handleConcurrentRequests(app, 5); // Example usage with 5 worker threads
+```
+
+**Problem 27: Authentication Middleware**
+
+**Problem Statement:**
+You are developing a web application with Node.js and Express, and you need to implement an authentication middleware to protect certain routes. The authentication should be token-based and support user roles (e.g., admin, regular user). Design a middleware function that verifies the authenticity of incoming requests and checks if the user has the required role to access certain routes.
+
+**Function Signature:**
+```javascript
+function authenticateAndAuthorize(req, res, next) {
+    // Your implementation here
+}
+```
+
+**Solution:**
+```javascript
+function authenticateAndAuthorize(req, res, next) {
+    const { token } = req.headers;
+    if (!token) {
+        return res.status(401).json({ error: 'Authentication token required' });
+    }
+
+    // Verify token (e.g., using JWT library) and extract user information
+    const user = verifyToken(token);
+    if (!user) {
+        return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    // Check user role
+    if (user.role !== 'admin') {
+        return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    req.user = user;
+    next();
+}
+
+// Example usage
+app.get('/admin/dashboard', authenticateAndAuthorize, (req, res) => {
+    // Route handler for admin dashboard
+});
+```
+
+
+Sure, here are three more advanced problems related to Node.js with Express:
+
+**Problem 28: WebSocket Integration**
+
+**Problem Statement:**
+You are developing a real-time collaborative editing tool using Node.js and Express. You need to integrate WebSocket functionality to allow users to see changes made by others in real-time. Design a solution to establish WebSocket connections, handle incoming messages, and broadcast changes to all connected clients efficiently.
+
+**Function Signature:**
+```javascript
+function setupWebSocketServer(server) {
+    // Your implementation here
+}
+```
+
+**Solution:**
+```javascript
+const WebSocket = require('ws');
+
+function setupWebSocketServer(server) {
+    const wss = new WebSocket.Server({ server });
+
+    wss.on('connection', (ws) => {
+        ws.on('message', (message) => {
+            // Handle incoming message (e.g., editing changes)
+            // Broadcast message to all connected clients
+            wss.clients.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(message);
+                }
+            });
+        });
+    });
+}
+
+// Example usage
+const server = app.listen(3000);
+setupWebSocketServer(server);
+```
+
+**Problem 29: Error Handling Middleware**
+
+**Problem Statement:**
+You are developing a complex web application with multiple routes and middleware in Node.js and Express. You want to implement a centralized error handling mechanism to catch and handle errors gracefully without crashing the server. Design a middleware function that intercepts errors thrown by route handlers or other middleware and sends an appropriate error response to the client.
+
+**Function Signature:**
+```javascript
+function errorHandler(err, req, res, next) {
+    // Your implementation here
+}
+```
+
+**Solution:**
+```javascript
+function errorHandler(err, req, res, next) {
+    console.error(err.stack); // Log the error for debugging
+    res.status(500).json({ error: 'Internal Server Error' });
+}
+
+// Example usage
+app.use(errorHandler);
+```
+
